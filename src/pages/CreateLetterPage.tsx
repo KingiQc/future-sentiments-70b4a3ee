@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, Lock, Send, User, Phone } from "lucide-react";
+import { saveSentLetter, Letter } from "@/lib/letters";
+import { toast } from "@/hooks/use-toast";
 
 const CreateLetterPage = () => {
   const navigate = useNavigate();
@@ -13,7 +15,22 @@ const CreateLetterPage = () => {
   const [isLocked, setIsLocked] = useState(true);
 
   const handleSend = () => {
-    // In a real app this would save to the database
+    const letter: Letter = {
+      id: crypto.randomUUID(),
+      title,
+      body,
+      sentDate: new Date().toISOString(),
+      deliveryDate: new Date(deliveryDate).toISOString(),
+      isLocked,
+      recipientPhone: recipientPhone || undefined,
+      recipientName: recipientName || undefined,
+      status: "sent",
+    };
+    saveSentLetter(letter);
+    toast({
+      title: "✉️ Letter Scheduled!",
+      description: `"${title}" will be delivered on ${new Date(deliveryDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}.`,
+    });
     navigate("/");
   };
 

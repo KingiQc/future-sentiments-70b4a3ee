@@ -2,104 +2,116 @@ export interface Letter {
   id: string;
   title: string;
   body: string;
-  sentDate: Date;
-  deliveryDate: Date;
+  sentDate: string;
+  deliveryDate: string;
   isLocked: boolean;
   recipientPhone?: string;
   recipientName?: string;
   status: "sent" | "delivered";
 }
 
-export function calculateProgress(sentDate: Date, deliveryDate: Date): number {
+export function calculateProgress(sentDate: string, deliveryDate: string): number {
   const now = new Date();
-  const total = deliveryDate.getTime() - sentDate.getTime();
-  const elapsed = now.getTime() - sentDate.getTime();
+  const sent = new Date(sentDate);
+  const delivery = new Date(deliveryDate);
+  const total = delivery.getTime() - sent.getTime();
+  const elapsed = now.getTime() - sent.getTime();
   if (total <= 0) return 1;
   return Math.min(Math.max(elapsed / total, 0), 1);
 }
 
-export function getCountdownText(deliveryDate: Date): string {
+export function isDelivered(deliveryDate: string): boolean {
+  return new Date() >= new Date(deliveryDate);
+}
+
+export function getCountdownText(deliveryDate: string): string {
   const now = new Date();
-  const diffMs = deliveryDate.getTime() - now.getTime();
+  const delivery = new Date(deliveryDate);
+  const diffMs = delivery.getTime() - now.getTime();
   const days = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
   if (days <= 0) return "Delivering today";
   if (days === 1) return "Delivers tomorrow";
   return `Delivers in ${days} days`;
 }
 
-export function formatDate(date: Date): string {
-  return date.toLocaleDateString("en-GB", {
+export function formatDate(date: string): string {
+  return new Date(date).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
     year: "numeric",
   });
 }
 
-export const mockLetters: Letter[] = [
-  {
-    id: "1",
-    title: "Hello from 2024!",
-    body: "Dear future me, I hope you're doing well...",
-    sentDate: new Date("2024-12-31"),
-    deliveryDate: new Date("2026-02-18"),
-    isLocked: true,
-    status: "sent",
-  },
-  {
-    id: "2",
-    title: "Weekly check in with myself",
-    body: "How are you feeling this week?",
-    sentDate: new Date("2026-02-10"),
-    deliveryDate: new Date("2026-03-04"),
-    isLocked: false,
-    status: "sent",
-  },
-  {
-    id: "3",
-    title: "Goals for this year",
-    body: "Let's revisit the goals...",
-    sentDate: new Date("2025-06-01"),
-    deliveryDate: new Date("2026-03-25"),
-    isLocked: false,
-    status: "sent",
-  },
-  {
-    id: "4",
-    title: "Happy new year 2026!",
-    body: "Wishing myself a great year ahead!",
-    sentDate: new Date("2026-01-01"),
-    deliveryDate: new Date("2026-03-26"),
-    isLocked: false,
-    status: "sent",
-  },
-  {
-    id: "5",
-    title: "A message from today",
-    body: "Just writing to say hello from the present.",
-    sentDate: new Date("2026-02-17"),
-    deliveryDate: new Date("2026-12-25"),
-    isLocked: false,
-    status: "sent",
-  },
-];
+const SENT_KEY = "sent_letters";
+const RECEIVED_KEY = "received_letters";
+const UNREAD_KEY = "unread_received_ids";
 
-export const mockReceivedLetters: Letter[] = [
-  {
-    id: "r1",
-    title: "Remember this moment",
-    body: "You wrote this on a sunny afternoon in the park. Life was simple and beautiful.",
-    sentDate: new Date("2025-01-15"),
-    deliveryDate: new Date("2026-01-15"),
-    isLocked: false,
-    status: "delivered",
-  },
-  {
-    id: "r2",
-    title: "Your birthday wish",
-    body: "Happy birthday, future me! I hope you celebrated well.",
-    sentDate: new Date("2025-06-10"),
-    deliveryDate: new Date("2026-02-10"),
-    isLocked: false,
-    status: "delivered",
-  },
-];
+export function getSentLetters(): Letter[] {
+  const raw = localStorage.getItem(SENT_KEY);
+  return raw ? JSON.parse(raw) : [];
+}
+
+export function saveSentLetter(letter: Letter) {
+  const letters = getSentLetters();
+  letters.unshift(letter);
+  localStorage.setItem(SENT_KEY, JSON.stringify(letters));
+}
+
+export function getReceivedLetters(): Letter[] {
+  const raw = localStorage.getItem(RECEIVED_KEY);
+  return raw ? JSON.parse(raw) : [];
+}
+
+export function saveReceivedLetter(letter: Letter) {
+  const letters = getReceivedLetters();
+  letters.unshift(letter);
+  localStorage.setItem(RECEIVED_KEY, JSON.stringify(letters));
+}
+
+export function getUnreadCount(): number {
+  const raw = localStorage.getItem(UNREAD_KEY);
+  const ids: string[] = raw ? JSON.parse(raw) : [];
+  return ids.length;
+}
+
+export function addUnreadId(id: string) {
+  const raw = localStorage.getItem(UNREAD_KEY);
+  const ids: string[] = raw ? JSON.parse(raw) : [];
+  if (!ids.includes(id)) {
+    ids.push(id);
+    localStorage.setItem(UNREAD_KEY, JSON.stringify(ids));
+  }
+}
+
+export function clearUnread() {
+  localStorage.setItem(UNREAD_KEY, JSON.stringify([]));
+}
+
+// Check sent letters and move delivered ones to received
+export function processDeliveries(): Letter[] {
+  const sent = getSentLetters();
+  const received = getReceivedLetters();
+  const receivedIds = new Set(received.map((l) => l.id));
+  const newlyDelivered: Letter[] = [];
+
+  const remaining: Letter[] = [];
+  for (const letter of sent) {
+    if (isDelivered(letter.deliveryDate) && !receivedIds.has(letter.id)) {
+      const delivered = { ...letter, status: "delivered" as const, isLocked: false };
+      newlyDelivered.push(delivered);
+    } else {
+      remaining.push(letter);
+    }
+  }
+
+  if (newlyDelivered.length > 0) {
+    const updatedReceived = [...newlyDelivered, ...received];
+    localStorage.setItem(RECEIVED_KEY, JSON.stringify(updatedReceived));
+    localStorage.setItem(SENT_KEY, JSON.stringify(remaining));
+    for (const l of newlyDelivered) {
+      addUnreadId(l.id);
+    }
+  }
+
+  return newlyDelivered;
+}

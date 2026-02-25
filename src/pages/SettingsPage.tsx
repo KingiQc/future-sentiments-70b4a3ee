@@ -15,14 +15,17 @@ const SettingsPage = () => {
 
   return (
     <div className="min-h-screen bg-background pb-28">
-      <div className="max-w-5xl mx-auto px-5 pt-14">
-        <motion.h1
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-[34px] font-bold text-foreground mb-8"
-        >
-          Settings
-        </motion.h1>
+      <div className="max-w-5xl mx-auto px-5">
+        {/* Sticky Header */}
+        <div className="sticky top-0 z-40 bg-background pt-14 pb-4">
+          <motion.h1
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-[34px] font-bold text-foreground"
+          >
+            Settings
+          </motion.h1>
+        </div>
 
         {/* Profile section */}
         <motion.div

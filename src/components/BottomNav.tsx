@@ -1,6 +1,8 @@
 import { Send, Mail, Settings } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { getUnreadCount } from "@/lib/letters";
+import { useState, useEffect } from "react";
 
 const tabs = [
   { path: "/", label: "Sent", icon: Send },
@@ -11,6 +13,13 @@ const tabs = [
 const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [unread, setUnread] = useState(0);
+
+  useEffect(() => {
+    setUnread(getUnreadCount());
+    const interval = setInterval(() => setUnread(getUnreadCount()), 2000);
+    return () => clearInterval(interval);
+  }, [location.pathname]);
 
   return (
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2.5rem)] max-w-md z-50">
@@ -26,7 +35,7 @@ const BottomNav = () => {
             <button
               key={tab.path}
               onClick={() => navigate(tab.path)}
-              className={`flex flex-col items-center gap-1 px-5 py-2 rounded-full transition-all duration-200 ${
+              className={`relative flex flex-col items-center gap-1 px-5 py-2 rounded-full transition-all duration-200 ${
                 isActive
                   ? "bg-primary/20 text-primary"
                   : "text-muted-foreground hover:text-foreground"
@@ -34,6 +43,11 @@ const BottomNav = () => {
             >
               <tab.icon size={20} />
               <span className="text-xs font-medium">{tab.label}</span>
+              {tab.label === "Received" && unread > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                  {unread}
+                </span>
+              )}
             </button>
           );
         })}

@@ -4,9 +4,11 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, Lock, Send, User, Phone } from "lucide-react";
 import { saveSentLetter, Letter } from "@/lib/letters";
 import { toast } from "@/hooks/use-toast";
+import { useTheme } from "@/hooks/use-theme";
 
 const CreateLetterPage = () => {
   const navigate = useNavigate();
+  const { theme } = useTheme();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [recipientPhone, setRecipientPhone] = useState("");
@@ -115,7 +117,7 @@ const CreateLetterPage = () => {
                 type="date"
                 value={deliveryDate}
                 onChange={(e) => setDeliveryDate(e.target.value)}
-                className="flex-1 bg-transparent text-[15px] text-foreground outline-none [color-scheme:dark]"
+                className={`flex-1 bg-transparent text-[15px] text-foreground outline-none ${theme === "dark" ? "[color-scheme:dark]" : "[color-scheme:light]"}`}
               />
             </div>
           </div>

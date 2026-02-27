@@ -1,14 +1,16 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { ArrowLeft, Lock, Unlock, Send, User, Phone, Calendar } from "lucide-react";
-import { getSentLetters, getReceivedLetters, calculateProgress, formatDate, getCountdownText, isDelivered } from "@/lib/letters";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, Lock, Unlock, Send, User, Phone, Calendar, Trash2 } from "lucide-react";
+import { getSentLetters, getReceivedLetters, calculateProgress, formatDate, getCountdownText, isDelivered, deleteSentLetter, deleteReceivedLetter } from "@/lib/letters";
 import { useState, useEffect } from "react";
+import { toast } from "@/hooks/use-toast";
 
 const LetterDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [unlocked, setUnlocked] = useState(false);
   const [unlocking, setUnlocking] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const allLetters = [...getSentLetters(), ...getReceivedLetters()];
   const letter = allLetters.find((l) => l.id === id);
@@ -46,6 +48,19 @@ const LetterDetailPage = () => {
     }, 800);
   };
 
+  const handleDelete = () => {
+    if (letter.status === "delivered") {
+      deleteReceivedLetter(letter.id);
+    } else {
+      deleteSentLetter(letter.id);
+    }
+    toast({
+      title: "🗑️ Letter Deleted",
+      description: `"${letter.title}" has been removed.`,
+    });
+    navigate(-1);
+  };
+
   return (
     <div className="min-h-screen bg-background pb-10">
       <div className="max-w-5xl mx-auto px-5">
@@ -65,6 +80,12 @@ const LetterDetailPage = () => {
             <h1 className="text-xl font-semibold text-foreground truncate flex-1">
               {letter.title}
             </h1>
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="w-10 h-10 rounded-full bg-destructive/20 flex items-center justify-center"
+            >
+              <Trash2 size={16} className="text-destructive" />
+            </button>
           </motion.div>
         </div>
 
@@ -184,6 +205,46 @@ const LetterDetailPage = () => {
           )}
         </motion.div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center px-5"
+            onClick={() => setShowDeleteConfirm(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-card rounded-lg p-6 w-full max-w-sm"
+            >
+              <h3 className="text-lg font-semibold text-foreground mb-2">Delete Letter?</h3>
+              <p className="text-sm text-muted-foreground mb-6">
+                This will permanently delete "{letter.title}". This action cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 py-3 rounded-lg bg-secondary text-foreground font-medium text-[15px]"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="flex-1 py-3 rounded-lg bg-destructive text-destructive-foreground font-medium text-[15px]"
+                >
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

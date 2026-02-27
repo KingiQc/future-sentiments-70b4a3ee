@@ -57,6 +57,15 @@ export function saveSentLetter(letter: Letter) {
   localStorage.setItem(SENT_KEY, JSON.stringify(letters));
 }
 
+export function deleteSentLetter(id: string) {
+  const letters = getSentLetters().filter((l) => l.id !== id);
+  localStorage.setItem(SENT_KEY, JSON.stringify(letters));
+}
+
+export function deleteReceivedLetter(id: string) {
+  const letters = getReceivedLetters().filter((l) => l.id !== id);
+  localStorage.setItem(RECEIVED_KEY, JSON.stringify(letters));
+}
 export function getReceivedLetters(): Letter[] {
   const raw = localStorage.getItem(RECEIVED_KEY);
   return raw ? JSON.parse(raw) : [];

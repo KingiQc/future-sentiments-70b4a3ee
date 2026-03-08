@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, Moon, Sun, Lock, Download, Trash2, LogOut, Palette, Camera, Bell } from "lucide-react";
+import { ChevronRight, Moon, Sun, Lock, Download, Trash2, LogOut, Camera, Bell } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
-import AccentColorPicker from "@/components/AccentColorPicker";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/use-theme";
 import { useAuth } from "@/hooks/use-auth";

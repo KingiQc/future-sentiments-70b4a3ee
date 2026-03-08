@@ -31,7 +31,7 @@ const FollowPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [followedUsers, setFollowedUsers] = useState<FollowedUser[]>([]);
-  const [searching, setSearching] = useState(false);
+  
 
   const loadFollowed = async () => {
     if (!user) return;

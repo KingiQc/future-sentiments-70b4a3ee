@@ -14,7 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          accent_color: string | null
+          avatar_url: string | null
+          created_at: string
+          gender: string | null
+          id: string
+          name: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          accent_color?: string | null
+          avatar_url?: string | null
+          created_at?: string
+          gender?: string | null
+          id?: string
+          name?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          accent_color?: string | null
+          avatar_url?: string | null
+          created_at?: string
+          gender?: string | null
+          id?: string
+          name?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

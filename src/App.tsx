@@ -43,6 +43,7 @@ const App = () => (
                 <Route path="/letter/:id" element={<LetterDetailPage />} />
                 <Route path="/follow" element={<FollowPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/reply/:id" element={<ReplyLetterPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

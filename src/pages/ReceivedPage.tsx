@@ -106,6 +106,16 @@ const ReceivedPage = () => {
                       <p className="text-xs text-muted-foreground/60 mt-2">
                         Sent {formatDate(letter.sentDate)}
                       </p>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/reply/${letter.id}`);
+                        }}
+                        className="mt-3 flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium"
+                      >
+                        <Reply size={14} />
+                        Reply
+                      </button>
                     </motion.div>
                   )}
                 </AnimatePresence>

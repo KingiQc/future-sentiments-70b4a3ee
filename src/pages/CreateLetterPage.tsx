@@ -33,6 +33,7 @@ const CreateLetterPage = () => {
       attachments: attachments.length > 0 ? attachments : undefined,
     };
     saveSentLetter(letter);
+    scheduleLetterNotification(title, deliveryDate, recipientName || undefined);
     toast({
       title: "✉️ Letter Scheduled!",
       description: `"${title}" will be delivered on ${new Date(deliveryDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}.`,

@@ -260,23 +260,48 @@ const SettingsPage = () => {
                   ? "Re-enter your passcode to confirm."
                   : "Choose a 4+ digit passcode to protect your letters."}
               </p>
-              <input
-                type="password"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                autoFocus
-                placeholder="Enter passcode"
-                value={passcodeStep === "confirm" ? passcodeConfirm : passcodeInput}
-                onChange={(e) => {
-                  const val = e.target.value.replace(/\D/g, "");
-                  if (passcodeStep === "confirm") {
-                    setPasscodeConfirm(val);
-                  } else {
-                    setPasscodeInput(val);
-                  }
-                }}
-                className="w-full bg-secondary rounded-lg px-4 py-3 text-center text-xl tracking-[0.5em] text-foreground outline-none mb-5"
-              />
+              <div className="flex gap-3 justify-center mb-5">
+                {[0, 1, 2, 3].map((i) => (
+                  <input
+                    key={i}
+                    type="password"
+                    inputMode="numeric"
+                    maxLength={1}
+                    autoFocus={i === 0}
+                    value={
+                      passcodeStep === "confirm"
+                        ? passcodeConfirm[i] || ""
+                        : passcodeInput[i] || ""
+                    }
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, "");
+                      if (passcodeStep === "confirm") {
+                        const arr = passcodeConfirm.split("");
+                        arr[i] = val.slice(-1);
+                        setPasscodeConfirm(arr.join(""));
+                      } else {
+                        const arr = passcodeInput.split("");
+                        arr[i] = val.slice(-1);
+                        setPasscodeInput(arr.join(""));
+                      }
+                      if (val && i < 3) {
+                        const next = e.target.parentElement?.children[i + 1] as HTMLInputElement;
+                        next?.focus();
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Backspace") {
+                        const current = passcodeStep === "confirm" ? passcodeConfirm : passcodeInput;
+                        if (!current[i] && i > 0) {
+                          const prev = (e.target as HTMLElement).parentElement?.children[i - 1] as HTMLInputElement;
+                          prev?.focus();
+                        }
+                      }
+                    }}
+                    className="w-14 h-14 rounded-xl bg-secondary text-center text-2xl font-bold text-foreground outline-none border-2 border-border focus:border-primary transition-colors"
+                  />
+                ))}
+              </div>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowPasscodeModal(false)}

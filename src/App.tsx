@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { AuthProvider } from "@/hooks/use-auth";
 import { AccentColorInitializer } from "@/components/AccentColorInitializer";
+import LockScreen from "@/components/LockScreen";
 import Index from "./pages/Index";
 import ReceivedPage from "./pages/ReceivedPage";
 import SettingsPage from "./pages/SettingsPage";
@@ -27,20 +28,22 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/received" element={<ReceivedPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/create" element={<CreateLetterPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<SignupPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/letter/:id" element={<LetterDetailPage />} />
-              <Route path="/follow" element={<FollowPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <LockScreen>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/received" element={<ReceivedPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/create" element={<CreateLetterPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/signup" element={<SignupPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/letter/:id" element={<LetterDetailPage />} />
+                <Route path="/follow" element={<FollowPage />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </LockScreen>
         </TooltipProvider>
       </AuthProvider>
     </ThemeProvider>

@@ -26,7 +26,9 @@ const CreateLetterPage = () => {
       title,
       body,
       sentDate: new Date().toISOString(),
-      deliveryDate: new Date(deliveryDate).toISOString(),
+      deliveryDate: deliveryTime
+        ? new Date(`${deliveryDate}T${deliveryTime}`).toISOString()
+        : new Date(deliveryDate).toISOString(),
       isLocked,
       recipientPhone: recipientPhone || undefined,
       recipientName: recipientName || undefined,

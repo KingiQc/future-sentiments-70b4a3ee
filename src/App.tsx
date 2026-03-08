@@ -16,6 +16,7 @@ import SignupPage from "./pages/SignupPage";
 import ProfilePage from "./pages/ProfilePage";
 import LetterDetailPage from "./pages/LetterDetailPage";
 import FollowPage from "./pages/FollowPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();

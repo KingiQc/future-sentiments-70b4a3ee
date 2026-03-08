@@ -7,6 +7,7 @@ import BottomNav from "@/components/BottomNav";
 import { getSentLetters, processDeliveries } from "@/lib/letters";
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
+import { sendLetterDeliveryNotification } from "@/lib/notifications";
 
 const SentPage = () => {
   const navigate = useNavigate();

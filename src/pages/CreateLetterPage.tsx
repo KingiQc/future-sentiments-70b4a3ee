@@ -16,6 +16,7 @@ const CreateLetterPage = () => {
   const [recipientPhone, setRecipientPhone] = useState("");
   const [recipientName, setRecipientName] = useState("");
   const [deliveryDate, setDeliveryDate] = useState("");
+  const [deliveryTime, setDeliveryTime] = useState("");
   const [isLocked, setIsLocked] = useState(true);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
 

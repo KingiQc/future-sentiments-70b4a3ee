@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { AuthProvider } from "@/hooks/use-auth";
-import { AccentColorInitializer } from "@/components/AccentColorInitializer";
+
 import LockScreen from "@/components/LockScreen";
 import Index from "./pages/Index";
 import ReceivedPage from "./pages/ReceivedPage";

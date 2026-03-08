@@ -32,7 +32,7 @@ const ReceivedPage = () => {
     <div className="min-h-screen bg-background pb-28">
       <div className="max-w-5xl mx-auto px-5">
         {/* Sticky Header */}
-        <div className="sticky top-0 z-40 bg-background pt-14 pb-4">
+        <div className="sticky top-0 z-40 bg-background pt-10 pb-4">
           <motion.h1
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}

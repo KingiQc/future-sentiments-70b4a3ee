@@ -2,15 +2,30 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Send } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "@/hooks/use-toast";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const [phone, setPhone] = useState("");
+  const { signIn } = useAuth();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/");
+    if (!email || !password) {
+      toast({ title: "Please fill in all fields" });
+      return;
+    }
+    setLoading(true);
+    const { error } = await signIn(email, password);
+    setLoading(false);
+    if (error) {
+      toast({ title: "Sign in failed", description: error.message });
+    } else {
+      navigate("/");
+    }
   };
 
   return (
@@ -30,12 +45,12 @@ const LoginPage = () => {
 
         <form onSubmit={handleLogin} className="flex flex-col gap-4">
           <div className="bg-card rounded-lg p-4">
-            <label className="text-sm text-muted-foreground mb-1.5 block">Phone Number</label>
+            <label className="text-sm text-muted-foreground mb-1.5 block">Email</label>
             <input
-              type="tel"
-              placeholder="+1 (555) 000-0000"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-transparent text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none"
             />
           </div>
@@ -54,18 +69,15 @@ const LoginPage = () => {
           <motion.button
             whileTap={{ scale: 0.97 }}
             type="submit"
-            className="w-full py-4 rounded-lg bg-primary text-primary-foreground font-semibold text-[15px] mt-2"
+            disabled={loading}
+            className="w-full py-4 rounded-lg bg-primary text-primary-foreground font-semibold text-[15px] mt-2 disabled:opacity-50"
           >
-            Sign In
+            {loading ? "Signing in..." : "Sign In"}
           </motion.button>
 
           <p className="text-center text-muted-foreground text-sm mt-4">
             Don't have an account?{" "}
-            <button
-              type="button"
-              onClick={() => navigate("/signup")}
-              className="text-primary font-medium"
-            >
+            <button type="button" onClick={() => navigate("/signup")} className="text-primary font-medium">
               Sign Up
             </button>
           </p>

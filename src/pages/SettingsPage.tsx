@@ -1,20 +1,27 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, Moon, Sun, Lock, Download, Trash2, LogOut } from "lucide-react";
+import { ChevronRight, Moon, Sun, Lock, Download, Trash2, LogOut, Palette, Camera } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
+import AccentColorPicker from "@/components/AccentColorPicker";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/use-theme";
+import { useAuth } from "@/hooks/use-auth";
 import { isPasscodeEnabled, setPasscode, removePasscode, verifyPasscode } from "@/lib/passcode";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const SettingsPage = () => {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+  const { user, profile, signOut, refreshProfile } = useAuth();
   const [showPasscodeModal, setShowPasscodeModal] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
   const [passcodeInput, setPasscodeInput] = useState("");
   const [passcodeConfirm, setPasscodeConfirm] = useState("");
   const [passcodeStep, setPasscodeStep] = useState<"enter" | "confirm" | "remove">("enter");
   const [passcodeEnabled, setPasscodeEnabled] = useState(isPasscodeEnabled());
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const handlePasscodeClick = () => {
     if (passcodeEnabled) {
@@ -60,12 +67,49 @@ const SettingsPage = () => {
     }
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setUploadingAvatar(true);
+    const ext = file.name.split(".").pop();
+    const path = `${user.id}/avatar.${ext}`;
+
+    await supabase.storage.from("avatars").remove([path]);
+    const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+    if (error) {
+      toast({ title: "Upload failed", description: error.message });
+      setUploadingAvatar(false);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
+    const avatarUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+    await supabase.from("profiles").update({ avatar_url: avatarUrl }).eq("user_id", user.id);
+    await refreshProfile();
+    setUploadingAvatar(false);
+    toast({ title: "Profile picture updated!" });
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/login");
+  };
+
+  const displayName = profile?.name || "User";
+  const initial = displayName[0]?.toUpperCase() || "U";
+
   const settingsItems = [
     {
       icon: theme === "dark" ? Moon : Sun,
       label: "Appearance",
       desc: theme === "dark" ? "Dark mode" : "Light mode",
       onClick: toggleTheme,
+    },
+    {
+      icon: Palette,
+      label: "Accent Color",
+      desc: "Customize your theme color",
+      onClick: () => setShowColorPicker(!showColorPicker),
     },
     {
       icon: Lock,
@@ -80,8 +124,7 @@ const SettingsPage = () => {
   return (
     <div className="min-h-screen bg-background pb-28">
       <div className="max-w-5xl mx-auto px-5">
-        {/* Sticky Header */}
-        <div className="sticky top-0 z-40 bg-background pt-14 pb-4">
+        <div className="sticky top-0 z-40 bg-background pt-10 pb-4">
           <motion.h1
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -91,46 +134,89 @@ const SettingsPage = () => {
           </motion.h1>
         </div>
 
-        {/* Profile section */}
+        {/* Profile section with avatar upload */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           onClick={() => navigate("/profile")}
           className="bg-card rounded-lg p-4 mb-6 flex items-center gap-4 cursor-pointer active:scale-[0.98] transition-transform"
         >
-          <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-            <span className="text-primary font-semibold text-lg">S</span>
+          <div className="relative">
+            <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-primary font-semibold text-lg">{initial}</span>
+              )}
+            </div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                avatarInputRef.current?.click();
+              }}
+              className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary flex items-center justify-center"
+            >
+              <Camera size={13} className="text-primary-foreground" />
+            </button>
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarUpload}
+            />
           </div>
           <div className="flex-1">
-            <h3 className="text-[15px] font-medium text-foreground">Your Profile</h3>
-            <p className="text-sm text-muted-foreground">Manage your account</p>
+            <h3 className="text-[15px] font-medium text-foreground">
+              {uploadingAvatar ? "Uploading..." : displayName}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {profile?.username ? `@${profile.username}` : "Manage your account"}
+            </p>
           </div>
           <ChevronRight size={18} className="text-muted-foreground" />
         </motion.div>
 
         <div className="flex flex-col gap-2">
           {settingsItems.map((item, i) => (
-            <motion.div
-              key={item.label}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.05 * i }}
-              onClick={item.onClick}
-              className="bg-card rounded-lg p-4 flex items-center gap-4 cursor-pointer active:scale-[0.98] transition-transform"
-            >
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                item.destructive ? "bg-destructive/20" : "bg-secondary"
-              }`}>
-                <item.icon size={18} className={item.destructive ? "text-destructive" : "text-foreground"} />
-              </div>
-              <div className="flex-1">
-                <h4 className={`text-[15px] font-medium ${item.destructive ? "text-destructive" : "text-foreground"}`}>
-                  {item.label}
-                </h4>
-                <p className="text-sm text-muted-foreground">{item.desc}</p>
-              </div>
-              <ChevronRight size={18} className="text-muted-foreground" />
-            </motion.div>
+            <div key={item.label}>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 * i }}
+                onClick={item.onClick}
+                className="bg-card rounded-lg p-4 flex items-center gap-4 cursor-pointer active:scale-[0.98] transition-transform"
+              >
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  item.destructive ? "bg-destructive/20" : "bg-secondary"
+                }`}>
+                  <item.icon size={18} className={item.destructive ? "text-destructive" : "text-foreground"} />
+                </div>
+                <div className="flex-1">
+                  <h4 className={`text-[15px] font-medium ${item.destructive ? "text-destructive" : "text-foreground"}`}>
+                    {item.label}
+                  </h4>
+                  <p className="text-sm text-muted-foreground">{item.desc}</p>
+                </div>
+                <ChevronRight size={18} className="text-muted-foreground" />
+              </motion.div>
+
+              {/* Color picker inline */}
+              <AnimatePresence>
+                {item.label === "Accent Color" && showColorPicker && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="bg-card rounded-lg p-4 mt-1">
+                      <AccentColorPicker />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           ))}
         </div>
 
@@ -138,7 +224,7 @@ const SettingsPage = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          onClick={() => navigate("/login")}
+          onClick={handleSignOut}
           className="mt-8 flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mx-auto"
         >
           <LogOut size={16} />

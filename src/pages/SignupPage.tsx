@@ -2,17 +2,34 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Send } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "@/hooks/use-toast";
 
 const SignupPage = () => {
   const navigate = useNavigate();
+  const { signUp } = useAuth();
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [gender, setGender] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/");
+    if (!name || !email || !password) {
+      toast({ title: "Please fill in required fields" });
+      return;
+    }
+    setLoading(true);
+    const { error } = await signUp(email, password, { name, phone, gender });
+    setLoading(false);
+    if (error) {
+      toast({ title: "Sign up failed", description: error.message });
+    } else {
+      toast({ title: "Account created!", description: "You can now sign in." });
+      navigate("/");
+    }
   };
 
   return (
@@ -32,12 +49,23 @@ const SignupPage = () => {
 
         <form onSubmit={handleSignup} className="flex flex-col gap-4">
           <div className="bg-card rounded-lg p-4">
-            <label className="text-sm text-muted-foreground mb-1.5 block">Full Name</label>
+            <label className="text-sm text-muted-foreground mb-1.5 block">Full Name *</label>
             <input
               type="text"
               placeholder="Your name"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              className="w-full bg-transparent text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none"
+            />
+          </div>
+
+          <div className="bg-card rounded-lg p-4">
+            <label className="text-sm text-muted-foreground mb-1.5 block">Email *</label>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-transparent text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none"
             />
           </div>
@@ -69,10 +97,10 @@ const SignupPage = () => {
           </div>
 
           <div className="bg-card rounded-lg p-4">
-            <label className="text-sm text-muted-foreground mb-1.5 block">Password</label>
+            <label className="text-sm text-muted-foreground mb-1.5 block">Password *</label>
             <input
               type="password"
-              placeholder="Create a password"
+              placeholder="Create a password (6+ characters)"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-transparent text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none"
@@ -82,18 +110,15 @@ const SignupPage = () => {
           <motion.button
             whileTap={{ scale: 0.97 }}
             type="submit"
-            className="w-full py-4 rounded-lg bg-primary text-primary-foreground font-semibold text-[15px] mt-2"
+            disabled={loading}
+            className="w-full py-4 rounded-lg bg-primary text-primary-foreground font-semibold text-[15px] mt-2 disabled:opacity-50"
           >
-            Create Account
+            {loading ? "Creating account..." : "Create Account"}
           </motion.button>
 
           <p className="text-center text-muted-foreground text-sm mt-4">
             Already have an account?{" "}
-            <button
-              type="button"
-              onClick={() => navigate("/login")}
-              className="text-primary font-medium"
-            >
+            <button type="button" onClick={() => navigate("/login")} className="text-primary font-medium">
               Sign In
             </button>
           </p>

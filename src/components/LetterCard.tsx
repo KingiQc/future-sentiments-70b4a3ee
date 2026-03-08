@@ -2,6 +2,7 @@ import { Timer } from "lucide-react";
 import { Letter, formatDate, getCountdownText } from "@/lib/letters";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/use-auth";
 
 interface LetterCardProps {
   letter: Letter;
@@ -10,6 +11,8 @@ interface LetterCardProps {
 
 const LetterCard = ({ letter, index }: LetterCardProps) => {
   const navigate = useNavigate();
+  const { profile } = useAuth();
+
   return (
     <motion.div
       onClick={() => navigate(`/letter/${letter.id}`)}
@@ -19,6 +22,17 @@ const LetterCard = ({ letter, index }: LetterCardProps) => {
       className="flex items-stretch gap-3 bg-card rounded-lg overflow-hidden active:scale-[0.98] transition-transform cursor-pointer"
     >
       <div className="w-1 bg-primary rounded-l-lg shrink-0" />
+      <div className="flex items-center py-4 pl-1">
+        <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden shrink-0">
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-primary text-xs font-semibold">
+              {(profile?.name || "U")[0].toUpperCase()}
+            </span>
+          )}
+        </div>
+      </div>
       <div className="flex-1 py-4 pr-4">
         <span className="text-xs text-muted-foreground">
           Sent {formatDate(letter.sentDate)}

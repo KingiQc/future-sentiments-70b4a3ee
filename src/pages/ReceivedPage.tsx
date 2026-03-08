@@ -6,6 +6,7 @@ import { getReceivedLetters, clearUnread, formatDate, isDelivered } from "@/lib/
 import { useState, useEffect } from "react";
 
 const ReceivedPage = () => {
+  const navigate = useNavigate();
   const [openId, setOpenId] = useState<string | null>(null);
   const [letters, setLetters] = useState(getReceivedLetters());
   const [unlocking, setUnlocking] = useState<string | null>(null);

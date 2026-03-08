@@ -1,5 +1,5 @@
 import { Send, Timer, Plus, Mail } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import HighlightCard from "@/components/HighlightCard";
 import LetterCard from "@/components/LetterCard";
@@ -8,9 +8,11 @@ import { getSentLetters, processDeliveries } from "@/lib/letters";
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { sendLetterDeliveryNotification } from "@/lib/notifications";
+import { useAuth } from "@/hooks/use-auth";
 
 const SentPage = () => {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const [letters, setLetters] = useState(getSentLetters());
 
   useEffect(() => {
@@ -26,6 +28,10 @@ const SentPage = () => {
       });
     }
   }, []);
+
+  if (!loading && !user) {
+    return <Navigate to="/login" replace />;
+  }
 
   const nextDelivery = letters[0];
   const upcoming = letters.slice(1);

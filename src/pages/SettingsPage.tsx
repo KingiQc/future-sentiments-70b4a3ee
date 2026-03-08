@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, Moon, Sun, Lock, Download, Trash2, LogOut, Palette, Camera, Bell } from "lucide-react";
+import { ChevronRight, Moon, Sun, Lock, Download, Trash2, LogOut, Camera, Bell } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
-import AccentColorPicker from "@/components/AccentColorPicker";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/use-theme";
 import { useAuth } from "@/hooks/use-auth";
@@ -16,7 +15,6 @@ const SettingsPage = () => {
   const { theme, toggleTheme } = useTheme();
   const { user, profile, signOut, refreshProfile } = useAuth();
   const [showPasscodeModal, setShowPasscodeModal] = useState(false);
-  const [showColorPicker, setShowColorPicker] = useState(false);
   const [passcodeInput, setPasscodeInput] = useState("");
   const [passcodeConfirm, setPasscodeConfirm] = useState("");
   const [passcodeStep, setPasscodeStep] = useState<"enter" | "confirm" | "remove">("enter");
@@ -114,12 +112,6 @@ const SettingsPage = () => {
       onClick: toggleTheme,
     },
     {
-      icon: Palette,
-      label: "Accent Color",
-      desc: "Customize your theme color",
-      onClick: () => setShowColorPicker(!showColorPicker),
-    },
-    {
       icon: Lock,
       label: "Passcode Lock",
       desc: passcodeEnabled ? "Enabled" : "Protect your letters",
@@ -215,21 +207,6 @@ const SettingsPage = () => {
                 <ChevronRight size={18} className="text-muted-foreground" />
               </motion.div>
 
-              {/* Color picker inline */}
-              <AnimatePresence>
-                {item.label === "Accent Color" && showColorPicker && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="bg-card rounded-lg p-4 mt-1">
-                      <AccentColorPicker />
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </div>
           ))}
         </div>

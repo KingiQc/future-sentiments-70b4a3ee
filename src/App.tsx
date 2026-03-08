@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { AuthProvider } from "@/hooks/use-auth";
-import { AccentColorInitializer } from "@/components/AccentColorInitializer";
+
 import LockScreen from "@/components/LockScreen";
 import Index from "./pages/Index";
 import ReceivedPage from "./pages/ReceivedPage";
@@ -16,6 +16,7 @@ import SignupPage from "./pages/SignupPage";
 import ProfilePage from "./pages/ProfilePage";
 import LetterDetailPage from "./pages/LetterDetailPage";
 import FollowPage from "./pages/FollowPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,7 +25,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <AuthProvider>
-        <AccentColorInitializer />
+        
         <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -40,6 +41,7 @@ const App = () => (
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/letter/:id" element={<LetterDetailPage />} />
                 <Route path="/follow" element={<FollowPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

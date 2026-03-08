@@ -1,5 +1,6 @@
-import { Mail, Unlock, Lock } from "lucide-react";
+import { Mail, Unlock, Lock, Reply } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import BottomNav from "@/components/BottomNav";
 import { getReceivedLetters, clearUnread, formatDate, isDelivered } from "@/lib/letters";
 import { useState, useEffect } from "react";

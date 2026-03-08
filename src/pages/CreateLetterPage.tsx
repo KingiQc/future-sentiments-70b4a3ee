@@ -5,6 +5,7 @@ import { ArrowLeft, Calendar, Lock, Send, User, Phone } from "lucide-react";
 import { saveSentLetter, Letter } from "@/lib/letters";
 import { toast } from "@/hooks/use-toast";
 import { useTheme } from "@/hooks/use-theme";
+import MediaAttachments, { Attachment } from "@/components/MediaAttachments";
 
 const CreateLetterPage = () => {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ const CreateLetterPage = () => {
   const [recipientName, setRecipientName] = useState("");
   const [deliveryDate, setDeliveryDate] = useState("");
   const [isLocked, setIsLocked] = useState(true);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
 
   const handleSend = () => {
     const letter: Letter = {
@@ -27,6 +29,7 @@ const CreateLetterPage = () => {
       recipientPhone: recipientPhone || undefined,
       recipientName: recipientName || undefined,
       status: "sent",
+      attachments: attachments.length > 0 ? attachments : undefined,
     };
     saveSentLetter(letter);
     toast({
@@ -38,7 +41,7 @@ const CreateLetterPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-5xl mx-auto px-5 pt-14 pb-10">
+      <div className="max-w-5xl mx-auto px-5 pt-10 pb-10">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -106,6 +109,12 @@ const CreateLetterPage = () => {
               rows={6}
               className="w-full bg-transparent text-[15px] text-foreground placeholder:text-muted-foreground/50 outline-none resize-none leading-relaxed"
             />
+          </div>
+
+          {/* Attachments */}
+          <div className="bg-card rounded-lg p-4">
+            <label className="text-sm text-muted-foreground mb-2 block">Attachments</label>
+            <MediaAttachments attachments={attachments} onChange={setAttachments} />
           </div>
 
           {/* Delivery Date */}

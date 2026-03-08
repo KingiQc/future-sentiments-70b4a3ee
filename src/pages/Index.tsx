@@ -18,6 +18,7 @@ const SentPage = () => {
     if (delivered.length > 0) {
       setLetters(getSentLetters());
       delivered.forEach((l) => {
+        sendLetterDeliveryNotification(l.title, l.recipientName);
         toast({
           title: "📬 Letter Delivered!",
           description: `"${l.title}" has been delivered.`,

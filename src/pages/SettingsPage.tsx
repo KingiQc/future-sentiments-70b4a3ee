@@ -125,6 +125,12 @@ const SettingsPage = () => {
       desc: passcodeEnabled ? "Enabled" : "Protect your letters",
       onClick: handlePasscodeClick,
     },
+    {
+      icon: Bell,
+      label: "Notifications",
+      desc: notificationsOn ? "Enabled" : "Enable push notifications",
+      onClick: handleToggleNotifications,
+    },
     { icon: Download, label: "Export Letters", desc: "Download your data", onClick: () => {} },
     { icon: Trash2, label: "Delete Account", desc: "Permanently delete", destructive: true, onClick: () => {} },
   ];

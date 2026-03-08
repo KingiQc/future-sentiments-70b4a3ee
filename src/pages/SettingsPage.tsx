@@ -23,6 +23,13 @@ const SettingsPage = () => {
   const [passcodeEnabled, setPasscodeEnabled] = useState(isPasscodeEnabled());
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const [notificationsOn, setNotificationsOn] = useState(isNotificationEnabled());
+
+  const handleToggleNotifications = async () => {
+    const granted = await requestNotificationPermission();
+    setNotificationsOn(granted);
+    toast({ title: granted ? "🔔 Notifications enabled" : "Notifications blocked by browser" });
+  };
 
   const handlePasscodeClick = () => {
     if (passcodeEnabled) {

@@ -1,3 +1,9 @@
+export interface LetterAttachment {
+  url: string;
+  type: "image" | "video" | "audio" | "document";
+  name: string;
+}
+
 export interface Letter {
   id: string;
   title: string;
@@ -8,6 +14,7 @@ export interface Letter {
   recipientPhone?: string;
   recipientName?: string;
   status: "sent" | "delivered";
+  attachments?: LetterAttachment[];
 }
 
 export function calculateProgress(sentDate: string, deliveryDate: string): number {

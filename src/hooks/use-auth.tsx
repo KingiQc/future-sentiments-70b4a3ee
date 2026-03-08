@@ -11,6 +11,7 @@ interface Profile {
   gender: string | null;
   avatar_url: string | null;
   accent_color: string | null;
+  created_at: string;
 }
 
 interface AuthContextType {

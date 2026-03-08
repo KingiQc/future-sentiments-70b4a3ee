@@ -36,14 +36,13 @@ const BottomNav = () => {
             <button
               key={tab.path}
               onClick={() => navigate(tab.path)}
-              className={`relative flex flex-col items-center gap-1 px-4 py-2 rounded-full transition-all duration-200 ${
+              className={`relative flex items-center justify-center px-4 py-2 rounded-full transition-all duration-200 ${
                 isActive
                   ? "bg-primary/20 text-primary"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <tab.icon size={18} />
-              <span className="text-[10px] font-medium">{tab.label}</span>
+              <tab.icon size={20} />
               {tab.label === "Received" && unread > 0 && (
                 <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
                   {unread}
